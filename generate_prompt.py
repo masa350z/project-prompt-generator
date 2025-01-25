@@ -31,7 +31,8 @@ TARGET_EXTENSIONS = {
     '.sh', '.bat', '.cmd', '.ps1',
     # Config / Text
     '.json', '.yaml', '.yml', '.toml', '.ini', '.cfg', '.config', '.env',
-    '.md', '.txt',
+    '.md',
+    # '.txt',
     # その他特別ファイル名
 }
 # 拡張子がないが対象にしたいファイル名（Dockerfileなど）
@@ -43,14 +44,14 @@ TARGET_FILENAMES = {
 
 # 無視したいディレクトリ (先頭一致でフィルタするために小文字で定義)
 IGNORE_DIRNAMES = [
-    '.git', 'node_modules', '__pycache__'
+    '.git', 'node_modules', '__pycache__', 'log', 'logs'
 ]
 
 # 無視したいファイル名・拡張子
 IGNORE_FILENAMES = {
     '.gitignore',  # プロジェクトに直接必要ない(今回は除外する)
     # ビルド成果物など
-    '.pyc', '.o', '.class', '.exe', '.dll', '.so',
+    '.pyc', '.o', '.class', '.exe', '.dll', '.so', '.txt'
 }
 
 
@@ -92,13 +93,19 @@ def is_ignore_dir(dir_name: str) -> bool:
     return False
 
 
-def get_directory_structure(root_path: str) -> str:
+def get_directory_structure(root_path: str, max_files_per_ext: int = 5) -> str:
     """
     ルートディレクトリ以下の構造をツリー状の文字列で返す。
     """
     lines = []
 
+    # すでにトランケートが発生した拡張子を管理するセット
+    truncated_extensions = set()
+
     def recurse_dir(current_path: str, prefix: str = ""):
+        # 拡張子ごとの表示数を管理する辞書を定義
+        extension_counts = {}
+
         # ディレクトリ内の要素を取得してソート
         try:
             items = sorted(os.listdir(current_path))
@@ -122,6 +129,30 @@ def get_directory_structure(root_path: str) -> str:
                 deeper_prefix = prefix + \
                     ("    " if i == len(items) - 1 else "│   ")
                 recurse_dir(item_path, deeper_prefix)
+            else:
+                # ファイルの場合、拡張子の表示数を制限
+                _, ext = os.path.splitext(item)
+                ext_lower = ext.lower()
+
+                # すでにトランケートしていた拡張子ならスキップ
+                if ext_lower in truncated_extensions:
+                    # 直前で追加した行を削除してスキップ
+                    lines.pop()
+                    continue
+
+                if ext_lower not in extension_counts:
+                    extension_counts[ext_lower] = 0
+
+                # まだ制限数未満の場合はカウントを進めてそのまま表示
+                if extension_counts[ext_lower] < max_files_per_ext:
+                    extension_counts[ext_lower] += 1
+                else:
+                    # 直前で追加したファイル行を削除
+                    lines.pop()
+                    # 1回だけ "... (.ext truncated)" を表示して後はスキップ
+                    lines.append(prefix + connector +
+                                 f" ... ({ext_lower} truncated)")
+                    truncated_extensions.add(ext_lower)
 
     base_name = os.path.basename(os.path.abspath(root_path))
     lines.append(base_name)
