@@ -31,13 +31,13 @@ python3 <スクリプト名> [オプション]
 1. 現在のディレクトリを解析し、デフォルトのファイル名に出力する:
 
    ```bash
-   python3 script.py
+   python3 generate_prompt.py
    ```
 
 2. 特定のディレクトリを解析して、指定したファイル名に出力する:
 
    ```bash
-   python3 script.py --dir /path/to/directory --out result.txt
+   python3 generate_prompt.py --dir /path/to/directory --out result.txt
    ```
 
 ## 出力内容
