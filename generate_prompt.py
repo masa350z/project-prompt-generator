@@ -37,21 +37,21 @@ TARGET_EXTENSIONS = {
 }
 # 拡張子がないが対象にしたいファイル名（Dockerfileなど）
 TARGET_FILENAMES = {
-    'makefile', 'dockerfile', 'readme',  # 大文字小文字区別無しに扱いたい例
+    'makefile', 'dockerfile',
     'requirements.txt', 'pipfile', 'package.json',
     'tsconfig.json', 'composer.json'
 }
 
 # 無視したいディレクトリ (先頭一致でフィルタするために小文字で定義)
 IGNORE_DIRNAMES = [
-    '.git', 'node_modules', '__pycache__', 'log', 'logs'
+    '.git', 'node_modules', '__pycache__', 'log', 'logs', 'venv'
 ]
 
 # 無視したいファイル名・拡張子
 IGNORE_FILENAMES = {
     '.gitignore',  # プロジェクトに直接必要ない(今回は除外する)
     # ビルド成果物など
-    '.pyc', '.o', '.class', '.exe', '.dll', '.so', '.txt'
+    '.pyc', '.o', '.class', '.exe', '.dll', '.so', '.txt', '.md', '.h5', '.weights.h5'
 }
 
 
